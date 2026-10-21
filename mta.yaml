@@ -1,0 +1,40 @@
+_schema-version: '3.1'
+ID: jhipster-sample-app-react
+version: 0.0.1
+description: JHipster React + Spring Boot (Java 25) on SAP BTP Cloud Foundry with SAP HANA Cloud
+
+modules:
+  # One Cloud Foundry app: Spring Boot REST API + React UI packaged in a single executable jar
+  - name: jhipster-react-app
+    type: java
+    path: .
+    build-parameters:
+      builder: custom
+      commands:
+        - mvn -B -ntp -Pprod,cf clean package -DskipTests
+      build-result: target/jhipster-sample-application-react-*.jar
+    parameters:
+      buildpack: sap_java_buildpack_jakarta
+      memory: 1024M
+      disk-quota: 1024M
+      instances: 1
+      health-check-type: http
+      health-check-http-endpoint: /management/health/liveness
+      health-check-timeout: 180
+    properties:
+      SPRING_PROFILES_ACTIVE: prod,cf
+      # Run on SapMachine 25 (the buildpack default is 21)
+      JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
+      JBP_CONFIG_SAP_MACHINE_JRE: '{ version: 25.+ }'
+      # JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET is supplied by secrets.mtaext (never committed)
+    requires:
+      - name: jhipster-hana-schema
+
+resources:
+  # Creates a schema + technical user inside the HANA Cloud instance of this space
+  # and binds its credentials (url, user, password, schema) to the app via VCAP_SERVICES
+  - name: jhipster-hana-schema
+    type: com.sap.xs.hana-schema
+    parameters:
+      service: hana
+      service-plan: schema

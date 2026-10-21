@@ -17,6 +17,13 @@
     <property name="uuidType" value="varchar(36)" dbms="mysql"/>
     <property name="datetimeType" value="datetime(6)" dbms="mysql"/>
     <property name="timeType" value="time(6)" dbms="mysql"/>
+    <property name="now" value="CURRENT_TIMESTAMP" dbms="hana"/>
+    <property name="floatType" value="real" dbms="hana"/>
+    <property name="clobType" value="nclob" dbms="hana"/>
+    <property name="blobType" value="blob" dbms="hana"/>
+    <property name="uuidType" value="varchar(36)" dbms="hana"/>
+    <property name="datetimeType" value="timestamp" dbms="hana"/>
+    <property name="timeType" value="time" dbms="hana"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20150805124838_added_entity_BankAccount.xml" relativeToChangelogFile="false"/>

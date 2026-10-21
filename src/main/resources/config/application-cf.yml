@@ -1,0 +1,28 @@
+# ===================================================================
+# Spring Boot configuration for the "cf" profile (SAP BTP Cloud Foundry + SAP HANA Cloud).
+#
+# Activate together with "prod": SPRING_PROFILES_ACTIVE=prod,cf (set in mta.yaml).
+#
+# Database credentials are NOT stored here. Cloud Foundry injects them through the
+# binding to the "jhipster-hana-schema" service instance (service "hana", plan "schema"),
+# and Spring Boot exposes VCAP_SERVICES as vcap.services.<instance-name>.credentials.*
+# ===================================================================
+
+spring:
+  datasource:
+    driver-class-name: com.sap.db.jdbc.Driver
+    url: ${vcap.services.jhipster-hana-schema.credentials.url}
+    username: ${vcap.services.jhipster-hana-schema.credentials.user}
+    password: ${vcap.services.jhipster-hana-schema.credentials.password}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    database-platform: org.hibernate.dialect.HANADialect
+    properties:
+      hibernate.default_schema: ${vcap.services.jhipster-hana-schema.credentials.schema}
+  liquibase:
+    default-schema: ${vcap.services.jhipster-hana-schema.credentials.schema}
+    liquibase-schema: ${vcap.services.jhipster-hana-schema.credentials.schema}
+
+# The JWT signing key must be supplied at deploy time through the
+# JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET environment variable (see secrets.mtaext.example).

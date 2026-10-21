@@ -151,3 +151,10 @@ Desktop.ini
 ######################
 coverage/
 .nyc_output/
+
+######################
+# SAP BTP / MTA
+######################
+mta_archives/
+.jhipster-sample-app-react_mta_build_tmp/
+secrets.mtaext
