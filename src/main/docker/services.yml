@@ -1,10 +1,14 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 name: jhipstersampleapplicationreact
 services:
-  mysql:
+  postgresql:
     extends:
-      file: ./mysql.yml
-      service: mysql
+      file: ./postgresql.yml
+      service: postgresql
     profiles:
       - ''
       - prod
+  redis:
+    extends:
+      file: ./redis.yml
+      service: redis

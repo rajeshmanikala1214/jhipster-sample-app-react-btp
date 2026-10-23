@@ -33,6 +33,25 @@ You will only need to run this command when dependencies change in [package.json
 
 We use npm scripts and Vite as our build system.
 
+If you are using redis as a cache, you will have to launch a cache server.
+To start your cache server, run:
+
+```bash
+docker compose -f src/main/docker/redis.yml up -d
+```
+
+The cache can also be turned off by adding to the `application.yml`:
+
+```yaml
+spring:
+  cache:
+    type: none
+```
+
+See [here](https://docs.spring.io/spring-boot/reference/io/caching.html#io.caching.provider.none) for details.
+
+**WARNING**: If you're using the second level Hibernate cache and disabling the Spring cache, you have to disable the second level Hibernate cache as well since they are using the same CacheManager.
+
 Run the following commands in two separate terminals to create a blissful development experience where your browser
 auto-refreshes when files change on your hard drive.
 

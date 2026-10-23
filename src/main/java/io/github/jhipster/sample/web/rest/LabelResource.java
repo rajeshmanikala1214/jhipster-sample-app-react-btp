@@ -1,5 +1,6 @@
 package io.github.jhipster.sample.web.rest;
 
+import io.github.jhipster.sample.config.CacheConfiguration;
 import io.github.jhipster.sample.domain.Label;
 import io.github.jhipster.sample.repository.LabelRepository;
 import io.github.jhipster.sample.service.dto.LabelDTO;
@@ -15,6 +16,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +56,7 @@ public class LabelResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @CacheEvict(cacheNames = CacheConfiguration.LABELS_LIST_CACHE, allEntries = true)
     public ResponseEntity<LabelDTO> createLabel(@Valid @RequestBody LabelDTO labelDTO) throws URISyntaxException {
         LOG.debug("REST request to save Label : {}", labelDTO);
         if (labelDTO.getId() != null) {
@@ -77,6 +81,7 @@ public class LabelResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @CacheEvict(cacheNames = CacheConfiguration.LABELS_LIST_CACHE, allEntries = true)
     public ResponseEntity<LabelDTO> updateLabel(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody LabelDTO labelDTO
@@ -113,6 +118,7 @@ public class LabelResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @CacheEvict(cacheNames = CacheConfiguration.LABELS_LIST_CACHE, allEntries = true)
     public ResponseEntity<LabelDTO> partialUpdateLabel(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody LabelDTO labelDTO
@@ -147,12 +153,16 @@ public class LabelResource {
 
     /**
      * {@code GET  /labels} : get all the Labels.
+     * <p>
+     * The result is cached in Redis (cache {@value CacheConfiguration#LABELS_LIST_CACHE}) and evicted by every write on labels,
+     * so this method body only runs on a cache miss.
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Labels in body.
      */
     @GetMapping("")
+    @Cacheable(cacheNames = CacheConfiguration.LABELS_LIST_CACHE, key = "'all'")
     public List<LabelDTO> getAllLabels() {
-        LOG.debug("REST request to get all Labels");
+        LOG.info("REST request to get all Labels: cache miss, reading from the database");
         List<Label> labels = labelRepository.findAll();
         return labelMapper.toDto(labels);
     }
@@ -177,6 +187,7 @@ public class LabelResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @CacheEvict(cacheNames = CacheConfiguration.LABELS_LIST_CACHE, allEntries = true)
     public ResponseEntity<Void> deleteLabel(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Label : {}", id);
         labelRepository.deleteById(id);

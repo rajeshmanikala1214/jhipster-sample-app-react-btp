@@ -2,6 +2,7 @@ package io.github.jhipster.sample;
 
 import io.github.jhipster.sample.config.AsyncSyncConfiguration;
 import io.github.jhipster.sample.config.EmbeddedSQL;
+import io.github.jhipster.sample.config.RedisTestContainer;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
         JhipsterSampleApplicationReactApp.class,
         AsyncSyncConfiguration.class,
         io.github.jhipster.sample.config.JacksonHibernateConfiguration.class,
+        RedisTestContainer.class,
     }
 )
 @EmbeddedSQL

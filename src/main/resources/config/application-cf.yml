@@ -1,28 +1,47 @@
 # ===================================================================
-# Spring Boot configuration for the "cf" profile (SAP BTP Cloud Foundry + SAP HANA Cloud).
+# Spring Boot configuration for the "cf" profile
+# (SAP BTP Cloud Foundry + PostgreSQL, hyperscaler option + Redis, hyperscaler option).
 #
 # Activate together with "prod": SPRING_PROFILES_ACTIVE=prod,cf (set in mta.yaml).
 #
-# Database credentials are NOT stored here. Cloud Foundry injects them through the
-# binding to the "jhipster-hana-schema" service instance (service "hana", plan "schema"),
-# and Spring Boot exposes VCAP_SERVICES as vcap.services.<instance-name>.credentials.*
+# Credentials are NOT stored here. Cloud Foundry injects them through the bindings to the
+# service instances "ro-bank-postgres-sql" (service postgresql-db) and "ro-bank-redis"
+# (service redis-cache), and Spring Boot exposes VCAP_SERVICES as
+# vcap.services.<instance-name>.credentials.*
 # ===================================================================
 
 spring:
   datasource:
-    driver-class-name: com.sap.db.jdbc.Driver
-    url: ${vcap.services.jhipster-hana-schema.credentials.url}
-    username: ${vcap.services.jhipster-hana-schema.credentials.user}
-    password: ${vcap.services.jhipster-hana-schema.credentials.password}
+    driver-class-name: org.postgresql.Driver
+    # The BTP PostgreSQL instance only accepts TLS connections and is reachable only from Cloud Foundry apps
+    url: jdbc:postgresql://${vcap.services.ro-bank-postgres-sql.credentials.hostname}:${vcap.services.ro-bank-postgres-sql.credentials.port}/${vcap.services.ro-bank-postgres-sql.credentials.dbname}?sslmode=require
+    username: ${vcap.services.ro-bank-postgres-sql.credentials.username}
+    password: ${vcap.services.ro-bank-postgres-sql.credentials.password}
     hikari:
-      maximum-pool-size: 10
-  jpa:
-    database-platform: org.hibernate.dialect.HANADialect
-    properties:
-      hibernate.default_schema: ${vcap.services.jhipster-hana-schema.credentials.schema}
-  liquibase:
-    default-schema: ${vcap.services.jhipster-hana-schema.credentials.schema}
-    liquibase-schema: ${vcap.services.jhipster-hana-schema.credentials.schema}
+      maximum-pool-size: 5
+
+jhipster:
+  cache:
+    redis:
+      # Time to live of every cache entry, in seconds. Kept short so cache expiry is easy to observe.
+      expiration: 300
+      # The BTP Redis service only accepts TLS ("rediss"). Set REDIS_SCHEME=redis if a binding reports no TLS.
+      server: ${REDIS_SCHEME:rediss}://${vcap.services.ro-bank-redis.credentials.hostname}:${vcap.services.ro-bank-redis.credentials.port}
+      cluster: ${vcap.services.ro-bank-redis.credentials.cluster_mode:false}
+      connection-pool-size: 8
+      connection-minimum-idle-size: 2
+      subscription-connection-pool-size: 2
+      subscription-connection-minimum-idle-size: 1
+
+application:
+  redis:
+    password: ${vcap.services.ro-bank-redis.credentials.password}
+
+logging:
+  level:
+    # Logs every SQL statement, so a Redis cache hit (no SQL) is easy to tell apart from a miss (SQL logged).
+    # Set to INFO once the cache behaviour has been verified.
+    org.hibernate.SQL: DEBUG
 
 # The JWT signing key must be supplied at deploy time through the
 # JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET environment variable (see secrets.mtaext.example).

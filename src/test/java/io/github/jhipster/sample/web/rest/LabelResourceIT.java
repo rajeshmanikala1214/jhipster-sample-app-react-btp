@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import io.github.jhipster.sample.IntegrationTest;
+import io.github.jhipster.sample.config.CacheConfiguration;
 import io.github.jhipster.sample.domain.Label;
 import io.github.jhipster.sample.repository.LabelRepository;
 import io.github.jhipster.sample.service.dto.LabelDTO;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,6 +60,9 @@ class LabelResourceIT {
     @Autowired
     private MockMvc restLabelMockMvc;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     private Label label;
 
     private Label insertedLabel;
@@ -85,6 +90,8 @@ class LabelResourceIT {
     @BeforeEach
     void initTest() {
         label = createEntity();
+        // Tests insert labels through the repository, which does not evict the cached label list
+        cacheManager.getCache(CacheConfiguration.LABELS_LIST_CACHE).clear();
     }
 
     @AfterEach

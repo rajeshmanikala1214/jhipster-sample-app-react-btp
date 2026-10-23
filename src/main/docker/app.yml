@@ -7,10 +7,12 @@ services:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,api-docs,secret-samples
       - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/jhipstersampleapplicationreact?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/jhipsterSampleApplicationReact
+      - SPRING_DATASOURCE_USERNAME=jhipsterSampleApplicationReact
       - SPRING_DATASOURCE_PASSWORD=
-      - SPRING_LIQUIBASE_URL=jdbc:mysql://mysql:3306/jhipstersampleapplicationreact?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
+      - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgresql:5432/jhipsterSampleApplicationReact
+      - JHIPSTER_CACHE_REDIS_SERVER=redis://redis:6379
+      - JHIPSTER_CACHE_REDIS_CLUSTER=false
     ports:
       - 127.0.0.1:8080:8080
     healthcheck:
@@ -23,9 +25,13 @@ services:
       timeout: 5s
       retries: 40
     depends_on:
-      mysql:
+      postgresql:
         condition: service_healthy
-  mysql:
+  postgresql:
     extends:
-      file: ./mysql.yml
-      service: mysql
+      file: ./postgresql.yml
+      service: postgresql
+  redis:
+    extends:
+      file: ./redis.yml
+      service: redis
