@@ -26,6 +26,9 @@ modules:
       # Run on SapMachine 25 (the buildpack default is 21)
       JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
       JBP_CONFIG_SAP_MACHINE_JRE: '{ version: 25.+ }'
+      # The buildpack's memory calculator defaults direct memory to 10M, which is too small for the
+      # Netty buffers of the Redis client (Redisson): OutOfDirectMemoryError and failed Redis DNS lookups
+      JBP_CONFIG_JAVA_OPTS: "[java_opts: '-XX:MaxDirectMemorySize=128m']"
     requires:
       - name: ro-bank-postgres-sql
       - name: ro-bank-redis
