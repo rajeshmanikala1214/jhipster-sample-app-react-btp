@@ -26,15 +26,19 @@ modules:
       # Run on SapMachine 25 (the buildpack default is 21)
       JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
       JBP_CONFIG_SAP_MACHINE_JRE: '{ version: 25.+ }'
-      # JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET is supplied by secrets.mtaext (never committed)
     requires:
       - name: ro-bank-postgres-sql
       - name: ro-bank-redis
+      - name: jhipster-jwt-secret
 
 resources:
-  # Both instances already exist in space "dev" (plan "trial") and are only bound by this MTA,
-  # so redeploying or undeploying the app never deletes the data they hold.
+  # All instances already exist in space "dev" and are only bound by this MTA,
+  # so redeploying or undeploying the app never deletes them or the data they hold.
   - name: ro-bank-postgres-sql
     type: org.cloudfoundry.existing-service
   - name: ro-bank-redis
+    type: org.cloudfoundry.existing-service
+  # User-provided service holding the JWT signing key, created once per space:
+  #   cf cups jhipster-jwt-secret -p '{"base64Secret":"<output of: openssl rand -base64 64 | tr -d \n>"}'
+  - name: jhipster-jwt-secret
     type: org.cloudfoundry.existing-service

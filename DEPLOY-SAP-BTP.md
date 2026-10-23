@@ -38,16 +38,27 @@ No passwords, keys, or service credentials belong in this file or anywhere in th
 
 Build: `mbt build` (runs `mvn -B -ntp -Pprod clean package -DskipTests`; needs **JDK 25** on the build agent; Node is downloaded by Maven).
 
-Deploy the produced `mta_archives/jhipster-sample-app-react_0.0.2.mtar` with the JWT secret extension:
+**One-time prerequisite – JWT signing key.** The app refuses to start without it. Create a user-provided service
+named `jhipster-jwt-secret` in space `dev` with one credential, `base64Secret` (64 random bytes, base64):
+
+```bash
+cf cups jhipster-jwt-secret -p '{"base64Secret":"<output of: openssl rand -base64 64 | tr -d \n>"}'
+```
+
+or in the Cockpit: space `dev` → **Instances** → **Create** → **User-Provided Service Instance**, name
+`jhipster-jwt-secret`, parameters `{"base64Secret": "<generated value>"}`. The MTA binds it like the database,
+so the pipeline needs no secret file.
+
+Deploy the produced `mta_archives/jhipster-sample-app-react_0.0.2.mtar`:
 
 ```bash
 cf login -a https://api.cf.us10-001.hana.ondemand.com
 cf target -o c09726f8trial -s dev
-cf deploy mta_archives/jhipster-sample-app-react_0.0.2.mtar -e secrets.mtaext
+cf deploy mta_archives/jhipster-sample-app-react_0.0.2.mtar
 ```
 
-`secrets.mtaext` (git-ignored) is created from `secrets.mtaext.example`. In a pipeline, provide it as a secret file or
-set `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` on the app instead.
+(`secrets.mtaext` from `secrets.mtaext.example` still works with `-e secrets.mtaext`; the environment variable it sets
+takes precedence over the user-provided service.)
 
 On first start Liquibase creates the tables and loads the default users (`admin` / `user`).
 **Change those default passwords immediately after the first login.**

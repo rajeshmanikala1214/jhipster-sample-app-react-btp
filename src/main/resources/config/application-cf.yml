@@ -5,8 +5,8 @@
 # Activate together with "prod": SPRING_PROFILES_ACTIVE=prod,cf (set in mta.yaml).
 #
 # Credentials are NOT stored here. Cloud Foundry injects them through the bindings to the
-# service instances "ro-bank-postgres-sql" (service postgresql-db) and "ro-bank-redis"
-# (service redis-cache), and Spring Boot exposes VCAP_SERVICES as
+# service instances "ro-bank-postgres-sql" (service postgresql-db), "ro-bank-redis"
+# (service redis-cache) and "jhipster-jwt-secret" (user-provided), and Spring Boot exposes VCAP_SERVICES as
 # vcap.services.<instance-name>.credentials.*
 # ===================================================================
 
@@ -32,6 +32,12 @@ jhipster:
       connection-minimum-idle-size: 2
       subscription-connection-pool-size: 2
       subscription-connection-minimum-idle-size: 1
+  security:
+    authentication:
+      jwt:
+        # JWT signing key from the user-provided service "jhipster-jwt-secret" (credential "base64Secret").
+        # The JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET environment variable still takes precedence.
+        base64-secret: ${vcap.services.jhipster-jwt-secret.credentials.base64Secret}
 
 application:
   redis:
@@ -42,6 +48,3 @@ logging:
     # Logs every SQL statement, so a Redis cache hit (no SQL) is easy to tell apart from a miss (SQL logged).
     # Set to INFO once the cache behaviour has been verified.
     org.hibernate.SQL: DEBUG
-
-# The JWT signing key must be supplied at deploy time through the
-# JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET environment variable (see secrets.mtaext.example).
